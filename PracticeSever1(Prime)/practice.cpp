@@ -40,9 +40,10 @@ void main()
 			primes.push_back(i);
 		}
 	}
+	PrintNumbers(primes);
 	auto t1 = chrono::system_clock::now();
 	auto duration = chrono::duration_cast<chrono::milliseconds>(t1 - t0).count();
 	cout << "Took" << duration << "milliseconds." << endl;
-
-	PrintNumbers(primes);
+	//150000 시도 시 약 7504milliseconds. 
+	//300000 시도 시 약 13710milliseconds.
 }
