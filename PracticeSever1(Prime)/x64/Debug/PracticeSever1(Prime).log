@@ -1,3 +1,2 @@
-﻿  practice.cpp
-C:\Users\우재영\Documents\GitHub\Practice-sever\PracticeSever1(Prime)\practice.cpp(31,1): warning C4326: 'main'의 반환 형식이 'int'이어야 하는데 'void'입니다.
+﻿  multi_thread_prime.cpp
   PracticeSever1(Prime).vcxproj -> C:\Users\우재영\Documents\GitHub\Practice-sever\PracticeSever1(Prime)\x64\Debug\PracticeSever1(Prime).exe

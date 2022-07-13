@@ -1,106 +1,95 @@
-#include<iostream>
-#include<vector>
-#include<chrono>
-#include <windows.h>
-#include <process.h>
-#include <tchar.h>
+#include <vector>
+#include <iostream>
+#include <chrono>
+#include <thread>
+#include <memory>
+#include <mutex>
 
 using namespace std;
+
 const int MaxCount = 300000;
-#define MAX_THREADS (1024*10)
-DWORD cntOfThread = 0;
-
-unsigned int WINAPI ThreadProc(LPVOID IpParam)
-{
-	DWORD threadNum = (DWORD) IpParam;
-	while (1)
-	{
-		IsPrimeNumber();
-	}
-
-	return 0;
-	
-}
-
-
+const int ThreadCount = 4;
 
 bool IsPrimeNumber(int number)
 {
-	if (number == 1)
-		return false;
-	if (number == 2 || number == 3)
-		return true;
-	for (int i = 2; i < number - 1; i++)
-	{
-		if ((number % i) == 0)
-			return false;
-	}
-	return true;
+    if (number == 1)
+        return false;
+    if (number == 2 || number == 3)
+        return true;
+    for (int i = 2; i < number - 1; i++)
+    {
+        if ((number % i) == 0)
+            return false;
+    }
+    return true;
 }
 
 void PrintNumbers(const vector<int>& primes)
 {
-	for (int v : primes)
-	{
-		cout << v << endl;
-	}
+    for (int v : primes)
+    {
+        cout << v << endl;
+    }
 }
 
-int _tmain(int argc, TCHAR* argv[])
+int main()
 {
-	DWORD dwThreadId[MAX_THREADS];
-	HANDLE hThread[MAX_THREADS];
+    // 각 스레드는 여기서 값을 꺼내온다.
+    int num = 1;
 
-	// 생성 가능한 최대 개수의 쓰레드 생성
+    recursive_mutex num_mutex;
+    recursive_mutex prime_mutex;
+    
+    vector<int> primes; // 벡터 int형 primes 변수 생성
+     
 
-	while (1)
-	{
+    auto t0 = chrono::system_clock::now(); // 시간체크 시작
 
-		hThread[cntOfThread] = (HANDLE)
-			_beginthreadex(
-				NULL,					   // 디폴트 보안 관리자.
-				0,				           // 디폴트 스택 사이즈.
-				ThreadProc,				   // 쓰레드 main 함수(쓰레드 함수) 설정.
-				(LPVOID)cntOfThread,       // 쓰레드 함수의 전달인자.
-				0,						   // 디폴트 쓰레드 생성 속성.
-				(unsigned*)&dwThreadId[cntOfThread]   // 쓰레드 ID 저장을 위한 주소값 전달.
-			);
+    // 작동할 워커 스레드
+    vector<shared_ptr<thread> > threads; 
 
-		// 쓰레드 생성 확인
-		if (hThread[cntOfThread] == NULL)
-		{
-			_tprintf(_T("MAXIMUM THREAD SIZE: %d \n"), cntOfThread);
-			break;
-		}
+    for (int i = 0; i < ThreadCount; i++)
+    {
+        shared_ptr<thread> thread1(new thread([&]() {
+            // 각 스레드의 메인 함수.
+            // 값을 가져올 수 있으면 루프를 돈다.
+            while (true)
+            {
+                int n;
+                {
+                    lock_guard<recursive_mutex> num_lock(num_mutex); //lock 걸림
+                    n = num;
+                    num++;
+                }//num_mutex lcok 해제
 
-		cntOfThread++;
-	}
+                if (n >= MaxCount)
+                    break;
 
-	for (DWORD i = 0; i < cntOfThread; i++)
-	{
-		CloseHandle(hThread[i]);
-	}
+                if (IsPrimeNumber(n))
+                {
+                    lock_guard<recursive_mutex> prime_lock(prime_mutex);// lock걸림
+                    primes.push_back(n);
+                }//lock해제 (unlock)
+            }
+            }));
+        // 스레드 객체를 일단 갖고 있는다.
+        threads.push_back(thread1);
+    }
 
-	return 0;
+    // 모든 스레드가 일을 마칠 때까지 기다린다.
+    for (auto thread : threads)
+    {
+        thread->join();
+    }   
+    // 끝
+
+    auto t1 = chrono::system_clock::now(); //시간체크 끝
+
+    auto duration = chrono::duration_cast<chrono::milliseconds>(t1 - t0).count();
+    cout << "Took " << duration << " milliseconds." << endl;
+
+    //    PrintNumbers(primes);
+    ////150000 시도 시 약 392milliseconds. 
+    ////300000 시도 시 약 1491milliseconds. 
+    return 0;
 }
-
-//void main()
-//{
-//	vector<int> primes;
-//
-//	auto t0 = chrono::system_clock::now();
-//
-//	for (int i = 1; i < MaxCount; i++)
-//	{
-//		if (IsPrimeNumber(i))
-//		{
-//			primes.push_back(i);
-//		}
-//	}
-//	PrintNumbers(primes);
-//	auto t1 = chrono::system_clock::now();
-//	auto duration = chrono::duration_cast<chrono::milliseconds>(t1 - t0).count();
-//	cout << "Took" << duration << "milliseconds." << endl;
-//	//150000 시도 시 약 7504milliseconds. 
-//	//300000 시도 시 약 13710milliseconds.
-//}
