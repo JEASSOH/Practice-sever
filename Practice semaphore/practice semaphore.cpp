@@ -26,22 +26,22 @@ sem_t semaphore;
 DWORD randTimeArr[10];
 
 //세마포어 예제 화장실 두개와 이용자 10명
-//화장실은 10초간 사용한다 가정
+//화장실은 랜덤시간(20~50)초간 사용한다 가정
 
 int num = 10;
 
 
 unsigned int WINAPI thread1(LPVOID arg)
 {
-	int usingTime = 0;
+	int usingTime = (int)arg;
 
 	if (num != 0)
 	{
 		num--;
 
 		sem_wait(&semaphore);
-		wcout << "스레드" << GetCurrentThreadId() << "은 앞으로 10초간 화장실을 이용할 예정입니다" << endl;
-		Sleep(10);
+		wcout << "스레드" << GetCurrentThreadId() << "은 앞으로" <<usingTime<<"초간 화장실을 이용할 예정입니다" << endl;
+		Sleep(usingTime*1000);
 		wcout << "스레드" << GetCurrentThreadId() << "은 화장실에서 나왔습니다." << endl;
 		num++;
 
