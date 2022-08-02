@@ -13,8 +13,7 @@
 using namespace std;
 
 DWORD randTimeArr[10];
-HANDLE event;
-
+DWORD state[10];
 //축제에서 조명을 터트린다고 설정
 //
 
@@ -27,7 +26,11 @@ unsigned int WINAPI thread1(LPVOID arg)
 
 	wcout << "조명(스레드)" << GetCurrentThreadId() << "를 키셔야합니다" << endl;
 	
-	WaitForSingleObject(event,5000);    // indefinite wait
+	
+	WaitForSingleObject(
+		hEvent, // event handle
+		INFINITE);    // indefinite wait
+
 
 	wcout << "조명(스레드)" << GetCurrentThreadId() << "는 준비되어있습니다." << endl;
 	return 1;
@@ -61,7 +64,7 @@ int main()
 		if(hThreads[i] == NULL)
 		{
 			_tprintf(_T("Thread creation fault! \n"));
-			return -1;
+			return -1;	
 		}
 	}
 
@@ -83,14 +86,16 @@ int main()
 		ResumeThread(hThreads[i]);
 	}
 
-	WaitForMultipleObjects(10, hThreads, TRUE, INFINITE);
+	
 
 	for (int i = 0; i < EVENT; i++)
 	{
 		SetEvent(hEvent[i]);
 
 	}
-	
+
+	WaitForMultipleObjects(10, hThreads, TRUE, INFINITE);
+
 	for (int i = 0; i < EVENT; i++)
 	{
 		CloseHandle(hEvent[i]);
