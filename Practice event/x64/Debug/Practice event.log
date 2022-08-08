@@ -1,2 +1,15 @@
-﻿  practice.cpp
+﻿  Practice Event.cpp
+C:\Users\우재영\Documents\GitHub\Practice-sever\Practice event\Practice Event.cpp(22,75): warning C4474: 'printf' : 서식 문자열에 전달된 인수가 너무 많습니다.
+C:\Users\우재영\Documents\GitHub\Practice-sever\Practice event\Practice Event.cpp(22,75): message : 자리 표시자 및 해당 매개 변수에는 variadic 인수가 0개 필요하지만 1개가 제공되었습니다.
+C:\Users\우재영\Documents\GitHub\Practice-sever\Practice event\Practice Event.cpp(18,11): warning C4101: 'dwWaitResult' :참조되지 않은 지역 변수입니다.
+C:\Users\우재영\Documents\GitHub\Practice-sever\Practice event\Practice Event.cpp(38,63): warning C4474: 'printf' : 서식 문자열에 전달된 인수가 너무 많습니다.
+C:\Users\우재영\Documents\GitHub\Practice-sever\Practice event\Practice Event.cpp(38,63): message : 자리 표시자 및 해당 매개 변수에는 variadic 인수가 0개 필요하지만 1개가 제공되었습니다.
+C:\Users\우재영\Documents\GitHub\Practice-sever\Practice event\Practice Event.cpp(47,75): warning C4474: 'printf' : 서식 문자열에 전달된 인수가 너무 많습니다.
+C:\Users\우재영\Documents\GitHub\Practice-sever\Practice event\Practice Event.cpp(47,75): message : 자리 표시자 및 해당 매개 변수에는 variadic 인수가 0개 필요하지만 1개가 제공되었습니다.
+C:\Users\우재영\Documents\GitHub\Practice-sever\Practice event\Practice Event.cpp(64,63): warning C4474: 'printf' : 서식 문자열에 전달된 인수가 너무 많습니다.
+C:\Users\우재영\Documents\GitHub\Practice-sever\Practice event\Practice Event.cpp(64,63): message : 자리 표시자 및 해당 매개 변수에는 variadic 인수가 0개 필요하지만 1개가 제공되었습니다.
+C:\Users\우재영\Documents\GitHub\Practice-sever\Practice event\Practice Event.cpp(74,75): warning C4474: 'printf' : 서식 문자열에 전달된 인수가 너무 많습니다.
+C:\Users\우재영\Documents\GitHub\Practice-sever\Practice event\Practice Event.cpp(74,75): message : 자리 표시자 및 해당 매개 변수에는 variadic 인수가 0개 필요하지만 1개가 제공되었습니다.
+C:\Users\우재영\Documents\GitHub\Practice-sever\Practice event\Practice Event.cpp(88,63): warning C4474: 'printf' : 서식 문자열에 전달된 인수가 너무 많습니다.
+C:\Users\우재영\Documents\GitHub\Practice-sever\Practice event\Practice Event.cpp(88,63): message : 자리 표시자 및 해당 매개 변수에는 variadic 인수가 0개 필요하지만 1개가 제공되었습니다.
   Practice event.vcxproj -> C:\Users\우재영\Documents\GitHub\Practice-sever\Practice event\x64\Debug\Practice event.exe

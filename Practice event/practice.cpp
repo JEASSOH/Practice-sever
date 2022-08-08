@@ -11,7 +11,7 @@ DWORD WINAPI ThreadProc(LPVOID);
 void CreateEventsAndThreads(void) 
 {
     int i; 
-    DWORD dwThreadID; 
+    DWORD dwThreadID; //아이디를 담을 dword 변수 하나 생성
 
     // Create a manual-reset event object. The write thread sets this
     // object to the signaled state when it finishes writing to a 
@@ -23,12 +23,14 @@ void CreateEventsAndThreads(void)
         FALSE,              // initial state is nonsignaled
         TEXT("WriteEvent")  // object name
         ); 
+    //이벤트 만들기
 
     if (ghWriteEvent == NULL) 
     { 
         printf("CreateEvent failed (%d)\n", GetLastError());
         return;
     }
+    //이벤트 생성 오류시 printf출력
 
     // Create multiple threads to read from the buffer.
 
@@ -51,6 +53,7 @@ void CreateEventsAndThreads(void)
             return;
         }
     }
+    //4개의 쓰레드 생성
 }
 
 void WriteToBuffer(VOID) 

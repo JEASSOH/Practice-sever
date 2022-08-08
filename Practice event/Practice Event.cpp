@@ -1,109 +1,234 @@
-#include <iostream>
-#include <tchar.h>
-#include <mutex>
-//#include <thread>
-//pthread와 차이점은둘의 가장 큰 차이점은 추상화라고 생각합니다. std::threadC++ 클래스 라이브러리입니다. 
-//std::thread라이브러리에는 범위 잠금, 재귀 뮤텍스, future/promise 디자인 패턴 구현 등과 같은 많은 추상 기능이 포함되어 있습니다 .
-// ㅇhttps://stackoverflow.com/questions/13134186/c11-stdthreads-vs-posix-threads 출저
-#include <Windows.h>
-#include <random>
+#include <windows.h>
+#include <stdio.h>
 
-#define THREAD 10
-#define EVENT 10
-using namespace std;
+#define THREADCOUNT 4 
+#define EVENTCOUNT 3
 
-DWORD randTimeArr[10];
-DWORD state[10];
-//축제에서 조명을 터트린다고 설정
-//
+HANDLE ghWriteEvent;
+HANDLE ghThreads[THREADCOUNT];
+HANDLE ghEvent[EVENTCOUNT];
 
-int num = 10;
+DWORD WINAPI ThreadProc(LPVOID);
 
-
-unsigned int WINAPI thread1(LPVOID arg)
+DWORD WINAPI ThreadProc(LPVOID lpParam)
 {
-	UNREFERENCED_PARAMETER(arg);
+    // lpParam not used in this example.
+    UNREFERENCED_PARAMETER(lpParam);
 
-	wcout << "조명(스레드)" << GetCurrentThreadId() << "를 키셔야합니다" << endl;
-	
-	
-	WaitForSingleObject(
-		hEvent, // event handle
-		INFINITE);    // indefinite wait
+    DWORD dwWaitResult;
 
+    printf("Thread %d이 2번째 쓰레드를 키겠습니다.\n", GetCurrentThreadId());
 
-	wcout << "조명(스레드)" << GetCurrentThreadId() << "는 준비되어있습니다." << endl;
-	return 1;
+    printf("2번째 쓰레드에게 신호주는중\n", GetCurrentThreadId());
+    SetEvent(ghEvent[0]);
+    return 1;
+}
+DWORD WINAPI ThreadProc2(LPVOID lpParam)
+{
+    // lpParam not used in this example.
+    UNREFERENCED_PARAMETER(lpParam);
 
+    DWORD dwWaitResult;
+
+    
+
+    dwWaitResult = WaitForSingleObject(
+        ghEvent[0], // event handle
+        INFINITE);    // indefinite wait
+    printf("신호를 받았습니다!.\n", GetCurrentThreadId());
+   
+
+    // Now that we are done reading the buffer, we could use another
+    // event to signal that this thread is no longer reading. This
+    // example simply uses the thread handle for synchronization (the
+    // handle is signaled when the thread terminates.)
+    printf("Thread %d이 3번째 쓰레드를 키겠습니다.\n", GetCurrentThreadId());
+
+    printf("3번째 쓰레드에게 신호주는중\n", GetCurrentThreadId());
+    SetEvent(ghEvent[1]);
+    printf("Thread %d exiting\n", GetCurrentThreadId());
+    return 1;
+}
+DWORD WINAPI ThreadProc3(LPVOID lpParam)
+{
+    // lpParam not used in this example.
+    UNREFERENCED_PARAMETER(lpParam);
+
+    DWORD dwWaitResult;
+
+   
+
+    dwWaitResult = WaitForSingleObject(
+        ghEvent[1], // event handle
+        INFINITE);    // indefinite wait
+    printf("신호를 받았습니다!.\n", GetCurrentThreadId());
+    
+
+    // Now that we are done reading the buffer, we could use another
+    // event to signal that this thread is no longer reading. This
+    // example simply uses the thread handle for synchronization (the
+    // handle is signaled when the thread terminates.)
+     // handle is signaled when the thread terminates.)
+    printf("Thread %d이 4번째 쓰레드를 키겠습니다.\n", GetCurrentThreadId());
+
+    printf("4번째 쓰레드에게 신호주는중\n", GetCurrentThreadId());
+    SetEvent(ghEvent[2]);
+    printf("Thread %d exiting\n", GetCurrentThreadId());
+    return 1;
+}
+DWORD WINAPI ThreadProc4(LPVOID lpParam)
+{
+    // lpParam not used in this example.
+    UNREFERENCED_PARAMETER(lpParam);
+    DWORD dwWaitResult;
+
+    dwWaitResult = WaitForSingleObject(
+        ghEvent[2], // event handle
+        INFINITE);    // indefinite wait
+    printf("신호를 받았습니다!.\n", GetCurrentThreadId());
+   
+
+    printf("Thread %d exiting\n", GetCurrentThreadId());
+    return 1;
+}
+void CreateEventsAndThreads(void)
+{
+    int i;
+    DWORD dwThreadID; //아이디를 담을 dword 변수 하나 생성
+
+    // Create a manual-reset event object. The write thread sets this
+    // object to the signaled state when it finishes writing to a 
+    // shared buffer. 
+    for (i = 0; i < THREADCOUNT; i++)
+    {
+        // TODO: More complex scenarios may require use of a parameter
+        //   to the thread procedure, such as an event per thread to  
+        //   be used for synchronization.
+        ghEvent[i] = CreateEvent(
+            NULL,               // default security attributes
+            TRUE,               // manual-reset event
+            FALSE,              // initial state is nonsignaled
+            NULL  // object name
+        );
+
+        if (ghEvent[i] == NULL)
+        {
+            printf("CreateEvent failed (%d)\n", GetLastError());
+            return;
+        }
+    }
+    
+
+    for (i = 0; i < THREADCOUNT; i++)
+    {
+
+        
+        
+        // TODO: More complex scenarios may require use of a parameter
+        //   to the thread procedure, such as an event per thread to  
+        //   be used for synchronization.
+        if (i == 0)
+        {
+            ghThreads[i] = CreateThread(
+                NULL,              // default security
+                0,                 // default stack size
+                ThreadProc,        // name of the thread function
+                NULL,              // no thread parameters
+                0,                 // default startup flags
+                &dwThreadID);
+        }
+        else if (i == 1)
+        {
+            ghThreads[i] = CreateThread(
+                NULL,              // default security
+                0,                 // default stack size
+                ThreadProc2,        // name of the thread function
+                NULL,              // no thread parameters
+                0,                 // default startup flags
+                &dwThreadID);
+        }
+        else if (i == 2)
+        {
+            ghThreads[i] = CreateThread(
+                NULL,              // default security
+                0,                 // default stack size
+                ThreadProc3,        // name of the thread function
+                NULL,              // no thread parameters
+                0,                 // default startup flags
+                &dwThreadID);
+        }
+        else if (i == 3)
+        {
+            ghThreads[i] = CreateThread(
+                NULL,              // default security
+                0,                 // default stack size
+                ThreadProc4,        // name of the thread function
+                NULL,              // no thread parameters
+                0,                 // default startup flags
+                &dwThreadID);
+        }
+        if (ghThreads[i] == NULL)
+        {
+            printf("CreateThread failed (%d)\n", GetLastError());
+            return;
+        }
+    }
+    //4개의 쓰레드 생성
 }
 
 
 
-int main()
+void CloseEvents()
 {
+    // Close all event handles (currently, only one global handle).
 
-	DWORD dwThreadIDs[THREAD];
-	HANDLE hThreads[THREAD];
-	HANDLE hEvent[EVENT];
-
-
-
-	for (int i = 0; i < THREAD; i++)
-	{
-		hThreads[i] = (HANDLE)
-			_beginthreadex
-			(
-				NULL,
-				0,
-				thread1,	
-				NULL,
-				CREATE_SUSPENDED,
-				(unsigned*)&dwThreadIDs[i]
-			);
-
-		if(hThreads[i] == NULL)
-		{
-			_tprintf(_T("Thread creation fault! \n"));
-			return -1;	
-		}
-	}
-
-	for (int i = 0; i < EVENT; i++)
-	{
-		hEvent[i] = CreateEvent(NULL, TRUE, FALSE, TEXT("Already Light"));
-
-		if (hEvent[i] == NULL)
-		{
-			_tprintf(_T("Event creation fault! \n"));
-			return -1;
-		}
-	}
-
-
-
-	for (int i = 0; i < THREAD; i++)
-	{
-		ResumeThread(hThreads[i]);
-	}
-
-	
-
-	for (int i = 0; i < EVENT; i++)
-	{
-		SetEvent(hEvent[i]);
-
-	}
-
-	WaitForMultipleObjects(10, hThreads, TRUE, INFINITE);
-
-	for (int i = 0; i < EVENT; i++)
-	{
-		CloseHandle(hEvent[i]);
-	}
-	
-
-
-	wcout << "모든 조명(스레드)작동 완료" << endl;
-	return 1;
-
+    CloseHandle(ghWriteEvent);
 }
+
+int main(void)
+{
+    DWORD dwWaitResult;
+
+    // TODO: Create the shared buffer
+
+    // Create events and THREADCOUNT threads to read from the buffer
+
+    CreateEventsAndThreads();
+
+    // At this point, the reader threads have started and are most
+    // likely waiting for the global event to be signaled. However, 
+    // it is safe to write to the buffer because the event is a 
+    // manual-reset event.
+
+    
+
+    printf("Main thread waiting for threads to exit...\n");
+
+    // The handle for each thread is signaled when the thread is
+    // terminated.
+    dwWaitResult = WaitForMultipleObjects(
+        THREADCOUNT,   // number of handles in array
+        ghThreads,     // array of thread handles
+        TRUE,          // wait until all are signaled
+        INFINITE);
+
+    switch (dwWaitResult)
+    {
+        // All thread objects were signaled
+    case WAIT_OBJECT_0:
+        printf("All threads ended, cleaning up for application exit...\n");
+        break;
+
+        // An error occurred
+    default:
+        printf("WaitForMultipleObjects failed (%d)\n", GetLastError());
+        return 1;
+    }
+
+    // Close the events to clean up
+
+    CloseEvents();
+
+    return 0;
+}
+
